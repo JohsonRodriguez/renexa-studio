@@ -4,6 +4,16 @@ Static HTML/CSS/JS, no build step, no framework, no CMS. Two full page
 versions: English at `/index.html`, Spanish at `/es/index.html`, linked
 via the EN | ES switcher in the header.
 
+## Icons
+
+All icons are inlined as raw SVG markup from [Phosphor Icons](https://phosphoricons.com)
+("regular" weight), MIT licensed. No package, no CDN, no font file: the
+`<path>` data was copied straight from Phosphor's source repo directly
+into the HTML, same self-hosting approach as the font. To swap or add
+one, grab the raw SVG from
+`https://github.com/phosphor-icons/core/tree/main/assets/regular` and
+drop its `<path>` in.
+
 ## Structure
 
 ```
