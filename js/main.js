@@ -3,18 +3,40 @@
 
   var header = document.querySelector('.site-header');
   var navToggle = document.querySelector('.nav-toggle');
+  var mainNav = document.querySelector('.main-nav');
+  var closeTimer = null;
 
-  if (navToggle && header) {
+  // Two-phase open/close so the mobile menu can transition instead of
+  // snapping: 'is-rendered' switches display:none -> flex first (so the
+  // fade-in has something to animate), then 'is-open' drives the actual
+  // opacity/transform transition. Closing reverses the order, removing
+  // 'is-rendered' only after the fade-out finishes.
+  function openNav() {
+    if (!mainNav) { return; }
+    window.clearTimeout(closeTimer);
+    mainNav.classList.add('is-rendered');
+    void mainNav.offsetHeight;
+    header.classList.add('is-open');
+    navToggle.setAttribute('aria-expanded', 'true');
+  }
+
+  function closeNav() {
+    if (!mainNav) { return; }
+    header.classList.remove('is-open');
+    navToggle.setAttribute('aria-expanded', 'false');
+    window.clearTimeout(closeTimer);
+    closeTimer = window.setTimeout(function () {
+      mainNav.classList.remove('is-rendered');
+    }, 220);
+  }
+
+  if (navToggle && header && mainNav) {
     navToggle.addEventListener('click', function () {
-      var isOpen = header.classList.toggle('is-open');
-      navToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      if (header.classList.contains('is-open')) { closeNav(); } else { openNav(); }
     });
 
     document.querySelectorAll('.main-nav a').forEach(function (link) {
-      link.addEventListener('click', function () {
-        header.classList.remove('is-open');
-        navToggle.setAttribute('aria-expanded', 'false');
-      });
+      link.addEventListener('click', closeNav);
     });
   }
 
