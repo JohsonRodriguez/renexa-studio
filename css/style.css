@@ -74,7 +74,28 @@
 html {
   -webkit-text-size-adjust: 100%;
   scroll-behavior: smooth;
+  scrollbar-color: var(--line-strong) var(--paper-alt);
 }
+
+/* Browser surfaces we didn't draw, themed from the palette instead of
+   left at browser defaults: selection, caret, scrollbar. */
+::selection {
+  background: var(--accent);
+  color: #fff;
+}
+
+input, textarea {
+  caret-color: var(--accent);
+}
+
+::-webkit-scrollbar { width: 11px; height: 11px; }
+::-webkit-scrollbar-track { background: var(--paper-alt); }
+::-webkit-scrollbar-thumb {
+  background: var(--line-strong);
+  border-radius: var(--r-pill);
+  border: 3px solid var(--paper-alt);
+}
+::-webkit-scrollbar-thumb:hover { background: var(--ink-faint); }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
@@ -608,19 +629,6 @@ section { padding-block: var(--section-y); }
   align-items: center;
 }
 
-.example-label {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: var(--accent-dark);
-  background: var(--accent-soft);
-  padding: 0.35rem 0.8rem;
-  border-radius: var(--r-pill);
-  margin-bottom: 1rem;
-}
-
 .example-copy h2 { font-size: clamp(1.6rem, 2.8vw, 2.1rem); }
 .example-copy p { margin-top: 0.9rem; color: var(--ink-soft); line-height: 1.6; max-width: 42ch; }
 
@@ -631,6 +639,16 @@ section { padding-block: var(--section-y); }
   border: 1px solid var(--line);
   box-shadow: var(--shadow-lg);
 }
+
+.example-caption {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.85rem;
+  font-size: 0.82rem;
+  color: var(--ink-faint);
+}
+.example-caption svg { flex-shrink: 0; color: var(--ink-faint); }
 
 .example-mockup .mockup-bar { height: 36px; }
 .example-mockup .mockup-dot { width: 9px; height: 9px; }
