@@ -128,7 +128,7 @@
       chatLog.appendChild(bubble);
     }
 
-    function showStep(index) {
+    function showStep(index, shouldFocus) {
       fields.forEach(function (field, i) {
         field.classList.toggle('is-active', i === index);
       });
@@ -137,7 +137,7 @@
         formFoot.classList.add('is-hidden');
         addBubble('bot', fields[index].getAttribute('data-question'));
         var input = fields[index].querySelector('input, textarea');
-        if (input) {
+        if (input && shouldFocus) {
           window.setTimeout(function () { input.focus(); }, 320);
         }
       } else {
@@ -160,7 +160,7 @@
       field.classList.remove('has-error');
       if (value) { addBubble('user', value); }
       currentIndex += 1;
-      showStep(currentIndex);
+      showStep(currentIndex, true);
     }
 
     fields.forEach(function (field) {
@@ -203,6 +203,8 @@
     contactForm.classList.add('is-stepped');
     formFoot.classList.add('is-hidden');
     if (introText) { addBubble('bot', introText); }
-    showStep(0);
+    // Keep the initial page position at the hero. Focusing the first field
+    // during setup makes browsers scroll straight down to the contact form.
+    showStep(0, false);
   }
 })();
