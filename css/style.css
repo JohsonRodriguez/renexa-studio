@@ -1,7 +1,8 @@
 /* ============================================================
    Renexa Studio — design tokens & base
    Shape rule: buttons/badges = full pill, cards/panels = 14px,
-   inputs = 8px, browser-mockup frame = 12px. No other radii used.
+   inputs = 8px, browser-mockup frame = 12px, small icon chips
+   (problem/bento icons, ~42-48px) = full circle. No other radii used.
    ============================================================ */
 
 @font-face {
@@ -521,6 +522,12 @@ section { padding-block: var(--section-y); }
   font-size: 0.9rem;
   line-height: 1.5;
 }
+
+.bento-cell--tint {
+  background: var(--accent-soft);
+  border-color: transparent;
+}
+.bento-cell--tint .bento-icon { background: rgba(255, 255, 255, 0.6); }
 
 .bento-featured {
   grid-column: span 2;
