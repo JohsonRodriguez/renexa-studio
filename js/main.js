@@ -1,0 +1,186 @@
+(function () {
+  'use strict';
+
+  var header = document.querySelector('.site-header');
+  var navToggle = document.querySelector('.nav-toggle');
+
+  if (navToggle && header) {
+    navToggle.addEventListener('click', function () {
+      var isOpen = header.classList.toggle('is-open');
+      navToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    });
+
+    document.querySelectorAll('.main-nav a').forEach(function (link) {
+      link.addEventListener('click', function () {
+        header.classList.remove('is-open');
+        navToggle.setAttribute('aria-expanded', 'false');
+      });
+    });
+  }
+
+  var revealTargets = document.querySelectorAll('[data-reveal]');
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (revealTargets.length && !reduceMotion && 'IntersectionObserver' in window) {
+    var observer = new IntersectionObserver(
+      function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible');
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.15, rootMargin: '0px 0px -40px 0px' }
+    );
+    revealTargets.forEach(function (el) { observer.observe(el); });
+  } else {
+    revealTargets.forEach(function (el) { el.classList.add('is-visible'); });
+  }
+
+  var form = document.querySelector('.contact-form');
+  if (form) {
+    form.addEventListener('submit', function (event) {
+      var requiredFields = form.querySelectorAll('[required]');
+      var firstInvalid = null;
+
+      requiredFields.forEach(function (field) {
+        var wrapper = field.closest('.field');
+        var isEmpty = !field.value || !field.value.trim();
+
+        if (wrapper) {
+          wrapper.classList.toggle('has-error', isEmpty);
+        }
+        if (isEmpty && !firstInvalid) {
+          firstInvalid = field;
+        }
+      });
+
+      if (firstInvalid) {
+        event.preventDefault();
+        firstInvalid.focus();
+        return;
+      }
+
+      // Netlify Forms handles the actual submission (no JS fetch needed
+      // for the default flow), so we just let it POST and show a status
+      // message for browsers that stay on-page briefly before redirect.
+      var status = form.querySelector('.form-status');
+      if (status) {
+        status.classList.remove('is-error');
+        status.classList.add('is-success');
+        status.textContent = status.getAttribute('data-sending-text') || 'Sending...';
+      }
+    });
+
+    form.querySelectorAll('[required]').forEach(function (field) {
+      field.addEventListener('input', function () {
+        var wrapper = field.closest('.field');
+        if (wrapper) { wrapper.classList.remove('has-error'); }
+      });
+    });
+
+    initChatForm(form);
+  }
+
+  // Turns the plain stacked form into a one-question-at-a-time chat.
+  // It's still the same real <form> posting to Netlify; this only
+  // changes how the fields are revealed. No JS = the original plain
+  // form, fully functional.
+  function initChatForm(contactForm) {
+    var panel = contactForm.closest('.form-panel');
+    var chatLog = panel ? panel.querySelector('.chat-log') : null;
+    var fields = Array.prototype.slice.call(contactForm.querySelectorAll('.field[data-question]'));
+    var formFoot = contactForm.querySelector('.form-foot');
+
+    if (!chatLog || !fields.length || !formFoot) { return; }
+
+    var introText = chatLog.getAttribute('data-intro');
+    var outroText = chatLog.getAttribute('data-outro');
+    var currentIndex = 0;
+
+    function addBubble(role, text) {
+      var bubble = document.createElement('div');
+      bubble.className = 'chat-bubble chat-bubble--' + role;
+      bubble.textContent = text;
+      chatLog.appendChild(bubble);
+    }
+
+    function showStep(index) {
+      fields.forEach(function (field, i) {
+        field.classList.toggle('is-active', i === index);
+      });
+
+      if (index < fields.length) {
+        formFoot.classList.add('is-hidden');
+        addBubble('bot', fields[index].getAttribute('data-question'));
+        var input = fields[index].querySelector('input, textarea');
+        if (input) {
+          window.setTimeout(function () { input.focus(); }, 320);
+        }
+      } else {
+        if (outroText) { addBubble('bot', outroText); }
+        formFoot.classList.remove('is-hidden');
+      }
+    }
+
+    function advance(field) {
+      var input = field.querySelector('input, textarea');
+      var isRequired = input.hasAttribute('required');
+      var value = input.value.trim();
+
+      if (isRequired && !value) {
+        field.classList.add('has-error');
+        input.focus();
+        return;
+      }
+
+      field.classList.remove('has-error');
+      if (value) { addBubble('user', value); }
+      currentIndex += 1;
+      showStep(currentIndex);
+    }
+
+    fields.forEach(function (field) {
+      var input = field.querySelector('input, textarea');
+
+      var actions = document.createElement('div');
+      actions.className = 'step-actions';
+
+      var nextBtn = document.createElement('button');
+      nextBtn.type = 'button';
+      nextBtn.className = 'btn btn-primary btn-sm step-next';
+      nextBtn.textContent = field.getAttribute('data-next') || 'Continue';
+      nextBtn.addEventListener('click', function () { advance(field); });
+      actions.appendChild(nextBtn);
+
+      if (field.hasAttribute('data-optional')) {
+        var skipBtn = document.createElement('button');
+        skipBtn.type = 'button';
+        skipBtn.className = 'btn btn-ghost btn-sm step-skip';
+        skipBtn.textContent = field.getAttribute('data-skip') || 'Skip';
+        skipBtn.addEventListener('click', function () {
+          input.value = '';
+          field.classList.remove('has-error');
+          currentIndex += 1;
+          showStep(currentIndex);
+        });
+        actions.appendChild(skipBtn);
+      }
+
+      field.appendChild(actions);
+
+      input.addEventListener('keydown', function (event) {
+        if (event.key === 'Enter' && input.tagName !== 'TEXTAREA') {
+          event.preventDefault();
+          advance(field);
+        }
+      });
+    });
+
+    contactForm.classList.add('is-stepped');
+    formFoot.classList.add('is-hidden');
+    if (introText) { addBubble('bot', introText); }
+    showStep(0);
+  }
+})();
