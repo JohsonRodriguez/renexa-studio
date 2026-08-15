@@ -353,6 +353,14 @@ textarea:focus-visible {
   filter: grayscale(0.55) brightness(0.97);
   opacity: 0.75;
   transform: rotate(-3deg);
+  transition: opacity 550ms var(--ease), transform 550ms var(--ease);
+}
+
+@starting-style {
+  .mockup-back {
+    opacity: 0;
+    transform: rotate(-3deg) translateY(14px) scale(0.95);
+  }
 }
 
 .mockup-front {
@@ -361,6 +369,21 @@ textarea:focus-visible {
   bottom: 0;
   right: 0;
   transform: rotate(2deg);
+  transition: opacity 550ms var(--ease) 140ms, transform 550ms var(--ease) 140ms;
+}
+
+@starting-style {
+  .mockup-front {
+    opacity: 0;
+    transform: rotate(2deg) translateY(18px) scale(0.94);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mockup-back, .mockup-front { transition: opacity 300ms ease; }
+  @starting-style {
+    .mockup-back, .mockup-front { opacity: 0; }
+  }
 }
 
 .mockup-bar {
@@ -1017,6 +1040,19 @@ section { padding-block: var(--section-y); }
   opacity: 1;
   transform: translateY(0);
 }
+
+/* Grouped cards enter in a 60ms cascade instead of popping together */
+.problem-grid [data-reveal]:nth-child(2) { transition-delay: 60ms; }
+.problem-grid [data-reveal]:nth-child(3) { transition-delay: 120ms; }
+
+.bento [data-reveal]:nth-child(2) { transition-delay: 60ms; }
+.bento [data-reveal]:nth-child(3) { transition-delay: 120ms; }
+.bento [data-reveal]:nth-child(4) { transition-delay: 180ms; }
+.bento [data-reveal]:nth-child(5) { transition-delay: 240ms; }
+
+.process-rail [data-reveal]:nth-child(2) { transition-delay: 60ms; }
+.process-rail [data-reveal]:nth-child(3) { transition-delay: 120ms; }
+.process-rail [data-reveal]:nth-child(4) { transition-delay: 180ms; }
 @media (prefers-reduced-motion: reduce) {
   [data-reveal] { opacity: 1; transform: none; transition: none; }
 }
