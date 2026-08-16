@@ -84,9 +84,8 @@
         return;
       }
 
-      // Netlify Forms handles the actual submission (no JS fetch needed
-      // for the default flow), so we just let it POST and show a status
-      // message for browsers that stay on-page briefly before redirect.
+      // FormSubmit handles the actual submission, so we let the browser
+      // POST normally and show a brief status before the redirect.
       var status = form.querySelector('.form-status');
       if (status) {
         status.classList.remove('is-error');
@@ -128,7 +127,7 @@
       chatLog.appendChild(bubble);
     }
 
-    function showStep(index) {
+    function showStep(index, shouldFocus) {
       fields.forEach(function (field, i) {
         field.classList.toggle('is-active', i === index);
       });
@@ -137,7 +136,7 @@
         formFoot.classList.add('is-hidden');
         addBubble('bot', fields[index].getAttribute('data-question'));
         var input = fields[index].querySelector('input, textarea');
-        if (input) {
+        if (input && shouldFocus) {
           window.setTimeout(function () { input.focus(); }, 320);
         }
       } else {
@@ -160,7 +159,7 @@
       field.classList.remove('has-error');
       if (value) { addBubble('user', value); }
       currentIndex += 1;
-      showStep(currentIndex);
+      showStep(currentIndex, true);
     }
 
     fields.forEach(function (field) {
@@ -185,7 +184,7 @@
           input.value = '';
           field.classList.remove('has-error');
           currentIndex += 1;
-          showStep(currentIndex);
+          showStep(currentIndex, true);
         });
         actions.appendChild(skipBtn);
       }
@@ -203,6 +202,8 @@
     contactForm.classList.add('is-stepped');
     formFoot.classList.add('is-hidden');
     if (introText) { addBubble('bot', introText); }
-    showStep(0);
+    // Do not focus the first field during setup: browsers otherwise scroll
+    // directly to the contact section instead of keeping the hero in view.
+    showStep(0, false);
   }
 })();
